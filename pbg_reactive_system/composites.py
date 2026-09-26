@@ -481,6 +481,21 @@ from process_bigraph.composite_generator import composite_generator
     },
     default_n_steps=120,
     core_extensions=[register_mapk_types],
+    visualizations=[
+        {
+            'name': 'species-timeseries',
+            'address': 'local:MapkSpeciesTimeseries',
+            'config': {'inputs_map': {'time': 'global_time'}},
+        },
+        {
+            'name': 'animation',
+            'address': 'local:MapkAnimation',
+            'config': {
+                'inputs_map': {'time': 'global_time'},
+                'total_time': 60, 'n_keyframes': 12, 'n_intermediate': 4,
+            },
+        },
+    ],
 )
 def mapk_brs(core=None, *, mode='gillespie', seed=42, interval=1.0,
              max_per_tick=10 ** 6):

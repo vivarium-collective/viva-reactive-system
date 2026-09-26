@@ -310,6 +310,21 @@ visualizations:
   chart: charts/mapk_brs_animation.gif
   caption: Cubic ease-in-out interpolation between snapshots; the title carries the
     rule firing during each transition.
+- name: species-timeseries
+  address: local:MapkSpeciesTimeseries
+  config:
+    inputs_map:
+      time: global_time
+  caption: Interactive population time series of the per-compartment substrate counts.
+- name: animation-interactive
+  address: local:MapkAnimation
+  config:
+    inputs_map:
+      time: global_time
+    total_time: 60
+    n_keyframes: 12
+    n_intermediate: 4
+  caption: The MAPK cell-cartoon animation, regenerated from the composite (seed 42).
 conclusion_logic:
   if_primary_tests_pass:
     implementation_status: The MAPK BRS reproduces the prior live demo qualitatively

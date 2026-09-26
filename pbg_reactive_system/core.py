@@ -12,17 +12,21 @@ from process_bigraph import allocate_core
 
 from .types import register_mapk_types
 from .processes import BigraphicalReactiveSystem, SubstrateCensus
+from .visualizations import MapkSpeciesTimeseries, MapkAnimation
 
 
 def build_core():
-    """Allocate a core with the MAPK BRS signature and processes registered.
+    """Allocate a core with the MAPK BRS signature, processes, and viz registered.
 
-    Registering the processes under bare ``local:<Name>`` links lets composites
-    address them as ``local:BigraphicalReactiveSystem`` / ``local:SubstrateCensus``
-    (the fully-qualified ``local:!pbg_reactive_system...`` form also resolves).
+    Registering under bare ``local:<Name>`` links lets composites address them as
+    ``local:BigraphicalReactiveSystem`` / ``local:SubstrateCensus`` /
+    ``local:MapkSpeciesTimeseries`` / ``local:MapkAnimation`` (the fully-qualified
+    ``local:!pbg_reactive_system...`` form also resolves).
     """
     core = allocate_core()
     register_mapk_types(core)
     core.register_link('BigraphicalReactiveSystem', BigraphicalReactiveSystem)
     core.register_link('SubstrateCensus', SubstrateCensus)
+    core.register_link('MapkSpeciesTimeseries', MapkSpeciesTimeseries)
+    core.register_link('MapkAnimation', MapkAnimation)
     return core
