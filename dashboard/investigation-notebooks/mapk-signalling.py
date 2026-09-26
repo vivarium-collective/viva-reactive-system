@@ -252,6 +252,16 @@ _save_viz('mapk-brs-basics', 'rule-catalog', _render_one('image:charts/mapk_brs_
 # animation
 _save_viz('mapk-brs-basics', 'animation', _render_one('image:charts/mapk_brs_animation.gif', {}, RUNS_DB, STUDY_YAML))
 
+# **species-timeseries**
+
+# species-timeseries
+_save_viz('mapk-brs-basics', 'species-timeseries', _render_one('local:MapkSpeciesTimeseries', {'inputs_map': {'time': 'global_time'}}, RUNS_DB, STUDY_YAML))
+
+# **animation-interactive**
+
+# animation-interactive
+_save_viz('mapk-brs-basics', 'animation-interactive', _render_one('local:MapkAnimation', {'inputs_map': {'time': 'global_time'}, 'total_time': 60, 'n_keyframes': 12, 'n_intermediate': 4}, RUNS_DB, STUDY_YAML))
+
 # ### Acceptance criteria
 #
 # _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
