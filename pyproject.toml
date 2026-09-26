@@ -3,9 +3,9 @@ requires = ["hatchling>=1.18"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pbg-reactive-system"
+name = "viva-reactive-system"
 version = "0.1.0"
-description = "Process-bigraph wrapper for Milner-style Bigraphical Reactive Systems, with a worked MAPK signalling example."
+description = "Process-bigraph workbench workspace for Milner-style Bigraphical Reactive Systems, with a worked MAPK signalling example."
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
@@ -36,17 +36,20 @@ plots = [
 ]
 dev = [
     "pytest",
+    "pytest-json-report",
     "matplotlib",
     "imageio",
     "bigraph-viz",
 ]
 
 [project.urls]
-Homepage = "https://github.com/vivarium-collective/pbg-reactive-system"
-Issues = "https://github.com/vivarium-collective/pbg-reactive-system/issues"
+Homepage = "https://github.com/vivarium-collective/viva-reactive-system"
+Issues = "https://github.com/vivarium-collective/viva-reactive-system/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["pbg_reactive_system"]
 
 [tool.uv.sources]
-vivarium-workbench = { path = "/Users/eranagmon/code/vivarium-workbench", editable = true }
+# vivarium-workbench isn't on PyPI; pull it from git. For local dashboard
+# development, `uv pip install -e ../vivarium-workbench` in your venv instead.
+vivarium-workbench = { git = "https://github.com/vivarium-collective/vivarium-workbench.git" }

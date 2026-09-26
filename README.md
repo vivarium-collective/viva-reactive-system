@@ -1,119 +1,123 @@
-# pbg-reactive-system
+# viva-reactive-system
 
-[![demo](https://img.shields.io/badge/▶%20live%20demo-MAPK%20BRS%20report-1b9e77)](https://vivarium-collective.github.io/pbg-reactive-system/)
+A **process-bigraph research workspace** for **Milner-style Bigraphical
+Reactive Systems (BRS)**, driven through the interactive
+[**vivarium-workbench**](https://github.com/vivarium-collective/vivarium-workbench)
+dashboard. The running example is a **MAPK signalling cycle** modelled as a
+bigraph and simulated under Gillespie SSA.
 
-A `process-bigraph` wrapper for **Milner-style Bigraphical Reactive
-Systems**, with a worked **MAPK signalling cycle** as the running
-example.
+> The core engine lives in the Python package `pbg_reactive_system`; the
+> workspace layer (`workspace.yaml`, studies, investigations, reports) turns it
+> into a workbench you can run, inspect, and report from.
 
-## ▶ Demo
-
-The MAPK BRS demo runs the model under Gillespie SSA, renders cell-
-cartoon snapshots, a smooth animation, the rule catalog (redex →
-reactum, with real state before / after), and a population time
-series.
-
-- **▶ Live:** **<https://vivarium-collective.github.io/pbg-reactive-system/>**
-- **In-repo:** [`demo/report.html`](demo/report.html)
-- **Regenerate locally:**
-
-  ```bash
-  uv pip install -e ".[dev]"
-  python demo/demo_report.py
-  ```
-
-  The script runs the simulation, writes intermediate PNGs / GIF /
-  markdown to `demo/_artifacts/`, assembles a self-contained
-  `demo/report.html`, and opens it in your browser.
+---
 
 ## What's inside
 
-- A generic Process — `BigraphicalReactiveSystem` — that fires
-  Milner-style redex → reactum rewrite rules on a time-stepped
-  schedule. Three firing modes: `deterministic`, `stochastic`,
-  and Gillespie `gillespie` SSA.
-- A worked MAPK example: seven rules
-  (`phosphorylate`, `dissociate`, `dephosphorylate`,
-  `translocate_erk_in/out`, `translocate_perk_in/out`) over a
-  nested cell bigraph (`Cell ⊃ Cytoplasm ⊃ {Nucleus, ERLumen}`),
-  with MEK·pERK complexes carried by the link graph.
-- Plotting helpers in `pbg_reactive_system.mapk_plots` —
-  bilobal-kinase cartoons, eight-fold-symmetric NPC glyphs,
-  cubic ease-in-out animation across rule firings.
+- **A generic BRS engine** — `BigraphicalReactiveSystem`, a `process-bigraph`
+  Process that fires Milner-style redex → reactum rewrite rules on a
+  time-stepped schedule, in three modes: `deterministic`, `stochastic`, and
+  Gillespie `gillespie` SSA.
+- **A worked MAPK example** — seven rules (`phosphorylate`, `dissociate`,
+  `dephosphorylate`, `translocate_erk_in/out`, `translocate_perk_in/out`) over
+  a nested cell bigraph (`Cell ⊃ Cytoplasm ⊃ {Nucleus, ERLumen}`), with
+  MEK·pERK complexes carried on the link graph.
+- **A workbench composite** — `pbg_reactive_system.composites.mapk_brs`, a
+  `@composite_generator` the dashboard discovers, runs, and charts.
+- **A demo study** — `mapk-brs-basics`, grouped under the `mapk-signalling`
+  investigation, which reproduces the prior live demo's basic systems as
+  workbench visualizations (see below).
 
-See [`references/brs_mapk.md`](references/brs_mapk.md) for the
-formalism + biology citations.
+## The MAPK BRS demo, in the workbench
 
-## Installation
+The `mapk-brs-basics` study reproduces the original live demo inside the
+workbench: it runs the MAPK cycle under Gillespie SSA and surfaces its **basic
+systems** as five figures —
+
+| Figure | What it shows |
+|---|---|
+| **Initial bigraph** | Place graph (nested compartments) + link graph (MEK·substrate bonds). |
+| **Population time series** | Per-compartment substrate counts under Gillespie SSA. |
+| **Structural snapshots** | Cell cartoons through the run — ERK/pERK across compartments. |
+| **Rule catalog** | Each rule's redex → reactum beside a real before/after state. |
+| **Animation** | Smooth interpolation across rule firings; pERK entering the nucleus. |
+
+On a seeded 120-tick run the cycle behaves as expected: MEK·substrate complexes
+form in the cytoplasm and phospho-ERK accumulates in the nucleus (0 → 144), and
+all five behavior tests pass. See `workspace/studies/mapk-brs-basics/study.yaml`.
+
+## Open the workbench
 
 ```bash
-# From PyPI (once published):
-pip install pbg-reactive-system
-
-# With uv:
-uv pip install pbg-reactive-system
-
-# For development (editable):
-uv venv .venv
-source .venv/bin/activate
+# 1. install (editable) into a workspace venv
+uv venv .venv && source .venv/bin/activate
 uv pip install -e ".[dev]"
-pytest
+
+# 2. start the dashboard (serves the workspace, studies, and reports)
+vivarium-workbench serve --workspace . --port 8765
+#    → open http://localhost:8765, pick the mapk-signalling investigation,
+#      open the mapk-brs-basics study, and browse its five figures.
 ```
 
-The `[plots]` extra pulls in `matplotlib`, `imageio`, and
-`bigraph-viz` so the demo and `plot_brs_mapk` work. Core engine
-usage only needs the base dependencies.
+With the [viva-superpowers](https://github.com/vivarium-collective/viva-superpowers)
+plugin installed you can instead drive it with the skills — `/viva-workbench
+start`, `/viva-study open mapk-brs-basics`, `/viva-report`.
 
-## Quick start
+**Regenerate the demo figures** (deterministic, seed 42):
 
-```python
-from process_bigraph import Composite, allocate_core, gather_emitter_results
-from pbg_reactive_system import get_brs_mapk_doc, register_mapk_types
-
-core = allocate_core()
-register_mapk_types(core)
-
-doc = get_brs_mapk_doc(
-    core=core,
-    config={'interval': 1.0, 'mode': 'gillespie', 'seed': 42})
-
-sim = Composite(
-    {'state': doc['state'], 'composition': doc['schema']},
-    core=core)
-sim.run(50.0)
-
-results = gather_emitter_results(sim)
-series = next(iter(results.values()))
-print(f'got {len(series)} snapshots; t_final={series[-1]["global_time"]}')
+```bash
+cd workspace/studies/mapk-brs-basics && python render_panels.py
 ```
 
-To drive the engine directly with your own rules:
+## Quick start — drive the engine directly
 
 ```python
-from bigraph_schema.assembly import ReactionRule
-from bigraph_schema.schema import Site
-from process_bigraph import allocate_core
-from pbg_reactive_system import BigraphicalReactiveSystem
+from process_bigraph import Composite, gather_emitter_results
+from process_bigraph.emitter import emitter_from_wires
+from pbg_reactive_system.core import build_core
+from pbg_reactive_system.composites import mapk_brs
 
-core = allocate_core()
-core.register_types({'World': {'_inherit': 'node'},
-                     'Bag':   {'_inherit': 'node'},
-                     'Red':   {'_inherit': 'node'},
-                     'Blue':  {'_inherit': 'node'}})
+core = build_core()                       # registers the MAPK bigraph signature
+doc = mapk_brs(core=core, seed=42)        # the workbench composite
+state = dict(doc["state"])
+state["emitter"] = emitter_from_wires(
+    {"global_time": ["global_time"], "nucleus_pERK": ["nucleus_pERK"]})
 
-flip = ReactionRule(
-    redex={'bag': {'_type': 'Bag', 'tok': {'_type': 'Red'}, 'rest': Site()}},
-    reactum={'bag': {'_type': 'Bag', 'tok': {'_type': 'Blue'}, 'rest': Site()}},
-    instantiation={'rest': 'rest'},
-    rate=1.0,
-    label='flip')
+sim = Composite({"state": state, "composition": doc["schema"]}, core=core)
+sim.run(120.0)
 
-proc = BigraphicalReactiveSystem(
-    config={'rules': [flip], 'mode': 'gillespie', 'seed': 0},
-    core=core)
-state = {'_type': 'World', 'bag': {'_type': 'Bag',
-    'r0': {'_type': 'Red'}, 'r1': {'_type': 'Red'}}}
-out = proc.update({'state': state}, interval=5.0)
+series = next(iter(gather_emitter_results(sim).values()))
+print("nuclear pERK:", series[0]["nucleus_pERK"], "→", series[-1]["nucleus_pERK"])
+```
+
+To fire your own rules on your own bigraph, use `BigraphicalReactiveSystem`
+directly with a list of `bigraph_schema.assembly.ReactionRule`s — see the engine
+docstring in `pbg_reactive_system/processes.py`.
+
+## Workspace layout
+
+```
+workspace.yaml                     # workspace manifest (name, package, layout)
+pbg_reactive_system/               # the Python package (engine + example)
+  processes.py                     #   BigraphicalReactiveSystem + SubstrateCensus
+  composites.py                    #   mapk_brs composite generator + rules
+  types.py                         #   the MAPK bigraph signature
+  core.py                          #   build_core() the workbench builds against
+  mapk_plots.py                    #   cell cartoons / snapshots / animation
+workspace/
+  investigations/mapk-signalling/  # the investigation grouping the demo study
+  studies/mapk-brs-basics/         # the demo study: study.yaml, tests/, charts/
+  reports/                         # rendered workbench report (index.html)
+demo/                              # the original standalone HTML demo report
+references/brs_mapk.md             # the formalism + biology citations
+```
+
+## Tests
+
+```bash
+uv pip install -e ".[dev]"
+pytest                                        # engine + composite unit/integration tests
+pytest workspace/studies/mapk-brs-basics/tests # the study's behavior tests
 ```
 
 ## API
@@ -121,42 +125,23 @@ out = proc.update({'state': state}, interval=5.0)
 | Symbol | What it is |
 |---|---|
 | `BigraphicalReactiveSystem` | `process_bigraph.Process`; fires rules on each tick. |
-| `register_mapk_types(core)` | Register `Cell`, `Compartment`, `MEK`, `ERK`, `pERK`, `NPC`, `Cytoplasm`, `Nucleus`, `ERLumen` sorts onto a core. |
-| `mapk_rules()` | The seven MAPK rules as a list of `ReactionRule`s. |
+| `SubstrateCensus` | `Step` emitting scalar per-compartment substrate counts. |
+| `mapk_brs(core=None, *, mode, seed, interval, max_per_tick)` | The workbench composite generator. |
+| `build_core()` | Allocate a core with the MAPK signature registered. |
+| `register_mapk_types(core)` | Register the `Cell` / `Compartment` / `MEK` / `ERK` / `pERK` / `NPC` / … sorts. |
+| `mapk_rules()` | The seven MAPK rules as `ReactionRule`s. |
 | `initial_mapk_state(seed=0)` | The seeded nested cell bigraph. |
-| `get_brs_mapk_doc(core=None, config=None)` | Composite document wiring the BRS Process against the cell store + an emitter. |
-| `list_substrates(state)` | `[(name, compartment, control, bound)]` for every ERK / pERK. |
-| `count_substrates_per_compartment(state)` | `{comp: (free, perk_free, bound)}` for plotting. |
+| `get_brs_mapk_doc(core=None, config=None)` | Legacy composite document builder (emitter baked in). |
 | `plot_brs_mapk(results, state, config)` | Five-panel summary: bigraph, time series, snapshots, rule catalog, animation. |
 
-The seven rule constructors `rule_phosphorylate`, `rule_dissociate`,
-`rule_dephosphorylate`, `rule_translocate_erk_in`,
-`rule_translocate_erk_out`, `rule_translocate_perk_in`,
-`rule_translocate_perk_out` are also exported individually so you
-can swap or extend the set.
+## Limitations
 
-## Limitations and assumptions
-
-- The matcher operates on `_type` string equality on registered
-  schema types. Value-based predicates (e.g. "match a node whose
-  `color` field equals `red`") are not supported by the redex
-  language — encode such states as distinct sorts instead
-  (`Red` vs `Blue` rather than `Token` with a `color` field).
-- Rule application uses the primitives in `bigraph_schema.assembly`
-  (`find_matches`, `fire_rule`). Behaviour and semantics inherit
-  whatever those primitives provide.
-- The MAPK plotting helpers assume the specific cell anatomy
-  (cytoplasm with nested nucleus + ER lumen). Adapt or replace
-  them for a different bigraph signature.
-
-## Running the tests
-
-```bash
-uv pip install -e ".[dev]"
-pytest
-```
-
-10 unit + integration tests; all offline.
+- The matcher operates on `_type` string equality on registered schema types;
+  encode value-based states as distinct sorts (`Red` vs `Blue`, not a `color`
+  field).
+- The MAPK example is an illustrative BRS-engine demonstration, not a calibrated
+  kinetic model — rule rates are nominal and the rewrite rules are not
+  mass-conserving, so substrate copies grow over a run.
 
 ## License
 

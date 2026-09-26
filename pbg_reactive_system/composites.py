@@ -448,6 +448,96 @@ def get_brs_mapk_doc(core=None, config=None):
 
 
 # =====================================================================
+# Workbench composite generator
+# =====================================================================
+#
+# The vivarium-workbench discovers composites two ways: declarative
+# ``*.composite.yaml`` spec files, and ``@composite_generator``-decorated
+# Python functions (imported so their decorators fire). The MAPK BRS carries
+# ``ReactionRule`` objects in its process config, which don't round-trip
+# through YAML, so it ships as a generator. Importing this module (done by the
+# package ``__init__``) registers it in the process-bigraph registry, and the
+# dashboard's env-worker surfaces it as ``pbg_reactive_system.composites.mapk_brs``.
+
+from process_bigraph.composite_generator import composite_generator
+
+
+@composite_generator(
+    name='mapk_brs',
+    description=(
+        'MAPK signalling cycle as a Milner-style Bigraphical Reactive System. '
+        'MEK phosphorylates ERK in the cytoplasm; phospho-ERK translocates '
+        'through the nuclear pore into the nucleus; nuclear phosphatases close '
+        'the cycle. Seven redex → reactum rewrite rules fire under '
+        'Gillespie SSA over a nested cell bigraph '
+        '(Cell ⊃ Cytoplasm ⊃ {Nucleus, ERLumen}).'
+    ),
+    parameters={
+        'mode': {'type': 'string', 'default': 'gillespie',
+                 'choices': ['gillespie', 'stochastic', 'deterministic']},
+        'seed': {'type': 'integer', 'default': 42},
+        'interval': {'type': 'float', 'default': 1.0},
+        'max_per_tick': {'type': 'integer', 'default': 10 ** 6},
+    },
+    default_n_steps=120,
+    core_extensions=[register_mapk_types],
+)
+def mapk_brs(core=None, *, mode='gillespie', seed=42, interval=1.0,
+             max_per_tick=10 ** 6):
+    """Build the MAPK BRS composite document (state + schema).
+
+    The nested cell store (``cell``) is driven by a single
+    ``BigraphicalReactiveSystem`` process (``brs``) that fires the seven
+    ``mapk_rules()`` each tick. Observables (``global_time``, ``cell``) are
+    wired by the run harness, so no emitter is baked into the state here.
+    """
+    census_outputs = {k: [k] for k in (
+        'cytoplasm_ERK', 'cytoplasm_pERK', 'nucleus_pERK',
+        'complexes', 'total_substrate')}
+    return {
+        'schema': {
+            'cell': 'tree[node]',
+            'cytoplasm_ERK': 'float',
+            'cytoplasm_pERK': 'float',
+            'nucleus_pERK': 'float',
+            'complexes': 'float',
+            'total_substrate': 'float',
+        },
+        'state': {
+            'cell': initial_mapk_state(),
+            'cytoplasm_ERK': 0.0,
+            'cytoplasm_pERK': 0.0,
+            'nucleus_pERK': 0.0,
+            'complexes': 0.0,
+            'total_substrate': 0.0,
+            'brs': {
+                '_type': 'process',
+                'address': (
+                    'local:!pbg_reactive_system.processes'
+                    '.BigraphicalReactiveSystem'),
+                'config': {
+                    'rules': mapk_rules(),
+                    'mode': mode,
+                    'seed': int(seed),
+                    'max_per_tick': int(max_per_tick),
+                },
+                'inputs': {'state': ['cell']},
+                'outputs': {'state': ['cell']},
+                'interval': float(interval),
+            },
+            'census': {
+                '_type': 'step',
+                'address': (
+                    'local:!pbg_reactive_system.processes.SubstrateCensus'),
+                'config': {},
+                'inputs': {'cell': ['cell']},
+                'outputs': census_outputs,
+            },
+        },
+    }
+
+
+# =====================================================================
 # Backward-compatibility aliases
 # =====================================================================
 

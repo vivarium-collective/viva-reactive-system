@@ -8,7 +8,7 @@ module only chooses *which* match to fire and *when*.
 import math
 import random
 
-from process_bigraph.composite import Process
+from process_bigraph.composite import Process, Step
 
 from bigraph_schema.assembly import find_matches, fire_rule
 
@@ -151,3 +151,79 @@ class BigraphicalReactiveSystem(Process):
             fired_any = True
             steps += 1
         return subtree, fired_any
+
+
+# =====================================================================
+# Observer Step — scalar readouts over the bigraph
+# =====================================================================
+
+
+class SubstrateCensus(Step):
+    """Reads the ``cell`` bigraph and emits scalar substrate counts.
+
+    The BRS drives the whole nested-cell tree, which is a ``tree[node]``
+    observable — awkward to chart or assert on directly. This Step distils
+    it, each tick, into the handful of scalar populations the demo tracks:
+    unbound ERK / pERK in the cytoplasm, pERK that has translocated into the
+    nucleus, MEK·substrate complexes, and the conserved substrate total.
+    Wiring these as emittable scalars is what lets the workbench chart the
+    population time series and lets behavior tests assert on them.
+    """
+
+    config_schema = {}
+
+    def inputs(self):
+        return {'cell': 'tree[node]'}
+
+    def outputs(self):
+        return {
+            'cytoplasm_ERK': 'float',
+            'cytoplasm_pERK': 'float',
+            'nucleus_pERK': 'float',
+            'complexes': 'float',
+            'total_substrate': 'float',
+        }
+
+    def update(self, state, interval=None):
+        cell = state.get('cell', {})
+        counts = {
+            'cytoplasm_ERK': 0.0,
+            'cytoplasm_pERK': 0.0,
+            'nucleus_pERK': 0.0,
+            'complexes': 0.0,
+            'total_substrate': 0.0,
+        }
+        for _name, comp, ctrl, bound in _list_substrates(cell):
+            counts['total_substrate'] += 1.0
+            if bound:
+                counts['complexes'] += 1.0
+            if comp == 'nucleus' and ctrl == 'pERK':
+                counts['nucleus_pERK'] += 1.0
+            elif comp == 'cytoplasm' and ctrl == 'ERK' and not bound:
+                counts['cytoplasm_ERK'] += 1.0
+            elif comp == 'cytoplasm' and ctrl == 'pERK' and not bound:
+                counts['cytoplasm_pERK'] += 1.0
+        return counts
+
+
+def _list_substrates(node, comp_name=None, out=None):
+    """``[(name, compartment, control, bound)]`` for every ERK / pERK node.
+
+    Standalone twin of ``composites.list_substrates`` kept here so the
+    ``SubstrateCensus`` Step has no import dependency on the composites module.
+    """
+    if out is None:
+        out = []
+    if not isinstance(node, dict):
+        return out
+    ctrl = node.get('_type', '')
+    if ctrl in ('ERK', 'pERK'):
+        outs = node.get('outputs')
+        bound = isinstance(outs, dict) and bool(outs)
+        out.append((node.get('name', '?'), comp_name, ctrl, bound))
+        return out
+    for k, v in node.items():
+        if isinstance(v, dict):
+            next_comp = k if v.get('_type') == 'Compartment' else comp_name
+            _list_substrates(v, next_comp, out)
+    return out
