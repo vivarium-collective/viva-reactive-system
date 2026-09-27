@@ -33,7 +33,10 @@ workspace/reports/assets/*
 workspace/studies/*/runs.db
 workspace/studies/*/runs.db-shm
 workspace/studies/*/runs.db-wal
-workspace/studies/*/viz/
+workspace/studies/*/viz/*
+# ...but keep the committed interactive viz so the CI-published bundle renders them
+!workspace/studies/*/viz/species-timeseries.html
+!workspace/studies/*/viz/animation-interactive.html
 workspace/studies/*/*.subprocess.py
 workspace/studies/*/parquet-runs/
 workspace/studies/*/.run.lock
