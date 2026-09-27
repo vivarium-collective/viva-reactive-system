@@ -1,0 +1,98 @@
+schema_version: 2
+name: mapk-signalling
+title: MAPK signalling as a Bigraphical Reactive System
+created: '2026-09-26'
+status: complete
+
+question: |
+  Can the MAPK signalling cycle be expressed as a Milner-style Bigraphical
+  Reactive System and reproduce, under Gillespie SSA, the spatial signalling
+  behaviour of the prior live demo — MEK·ERK complex formation and phospho-ERK
+  translocation into the nucleus?
+
+hypothesis: |
+  A single time-stepped BRS process firing seven redex→reactum rewrite rules
+  over a nested cell bigraph reproduces the qualitative MAPK cycle: complexes
+  form in the cytoplasm and phospho-ERK accumulates in the nucleus over the run.
+
+lead: |
+  The MAP-kinase cascade is the canonical signal-transduction relay in
+  mammalian cells. This investigation ports that biology onto a bigraph —
+  molecules nested in compartments (place graph) and MEK·substrate bonds on a
+  shared edge (link graph) — and drives it with rewrite rules under Gillespie
+  SSA. It is the workbench home of the original pbg-reactive-system live demo.
+
+executive:
+  what_is_this: |
+    A single-study demonstration that the Bigraphical Reactive System engine in
+    this workspace reproduces the MAPK signalling cycle from the prior live demo,
+    now runnable and inspectable inside the workbench.
+  verdict: |
+    Reproduced. The MAPK BRS runs under Gillespie SSA and shows MEK·substrate
+    complex formation and phospho-ERK nuclear translocation; all five behavior
+    tests pass on a seeded 120-tick run.
+  verdict_status: complete
+  verdict_detail: |
+    Qualitative, uncalibrated demonstration — rule rates are illustrative and
+    the rewrite rules are not mass-conserving, so this validates the engine and
+    the spatial mechanism, not quantitative MAPK kinetics.
+  decisions_needed: []
+
+scientific_argument:
+  main_claim: |
+    A Milner-style bigraph with seven rewrite rules reproduces the MAPK cycle's
+    spatial signalling as emergent stochastic dynamics.
+  evidence_for:
+    - Nuclear phospho-ERK rises from 0 to 144 over a seeded 120-tick run.
+    - MEK·substrate complexes form (0 → 59), the catalytic intermediate.
+    - All five behavior tests pass (translocation, empty-start, complex formation, population growth, run length).
+  evidence_against:
+    - Substrate copies grow over the run — the rules are not mass-conserving, unlike real MAPK turnover.
+  key_figures:
+    - mapk-brs-basics / population-timeseries
+    - mapk-brs-basics / structural-snapshots
+  caveats:
+    - Illustrative rate constants; a single seeded trajectory; no calibration or robustness sweep.
+
+biological_story: |
+  The MAP-kinase cascade relays extracellular signals to the nucleus. This
+  investigation models its last catalytic step. In the cytoplasm, MEK binds a
+  free ERK (forming a MEK·pERK complex on the link graph), then dissociates to
+  release phospho-ERK; nuclear phosphatases dephosphorylate. Phospho-ERK
+  translocates through the nuclear pore complex into the nucleus, while ERK and
+  pERK also shuttle between the cytoplasm and the ER lumen. Rendered as a
+  bigraph, the place graph nests these molecules inside compartments
+  (Cell ⊃ Cytoplasm ⊃ {Nucleus, ERLumen}) and rewrite rules under Gillespie SSA
+  drive the cycle. The member study surfaces the basic systems the demo showed:
+  the initial bigraph, the rule catalog, the population time series, and the
+  structural snapshots and animation of pERK entering the nucleus.
+
+at_a_glance:
+  - study: mapk-brs-basics
+    role: >-
+      Reproduces the prior live demo — runs the MAPK BRS under Gillespie SSA and
+      surfaces its basic systems (bigraph, rules, time series, snapshots, animation).
+
+how_to_read: |
+  Open the mapk-brs-basics study. `report.verdict` is the headline; the five
+  visualizations reproduce the prior live demo's panels. Open a chart when you
+  want the detail behind a behavior test.
+
+glossary:
+  - term: BRS
+    definition: Bigraphical Reactive System — a bigraph plus redex→reactum rewrite rules (Milner 2009).
+  - term: place graph
+    definition: The nesting/containment structure of a bigraph (molecules inside compartments).
+  - term: link graph
+    definition: The connectivity structure of a bigraph (here, the MEK·substrate catalytic bond).
+  - term: Gillespie SSA
+    definition: Stochastic simulation algorithm — exact sampling of reaction waits from per-match propensities.
+
+studies:
+  - mapk-brs-basics
+
+acceptance_criteria:
+  - study: mapk-brs-basics
+    behavior: nucleus-accumulates-perk
+
+expert_docs: []
