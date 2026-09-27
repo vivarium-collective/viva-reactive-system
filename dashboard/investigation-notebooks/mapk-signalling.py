@@ -64,8 +64,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/Users/eranagmon/code/viva-reactive-system--workbench').is_dir():
-    REPO = Path('/Users/eranagmon/code/viva-reactive-system--workbench')
+if REPO is None and Path('/home/runner/work/viva-reactive-system/viva-reactive-system').is_dir():
+    REPO = Path('/home/runner/work/viva-reactive-system/viva-reactive-system')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
@@ -174,8 +174,7 @@ def _render_one(address, config, runs_db, study_yaml):
 #
 # | simulation | composite | steps | params |
 # | --- | --- | --- | --- |
-# | `mapk_brs` | `pbg_reactive_system.composites.mapk_brs` | 120 | — |
-# | `seed-7` | `pbg_reactive_system.composites.mapk_brs` | 120 | seed=7 |
+# | `mapk_brs` | `pbg_reactive_system.composites.mapk_brs` | 0 | — |
 
 # ### Specification (process-bigraph) — load, inspect, edit
 #
@@ -195,25 +194,7 @@ STUDY_DIR = REPO / 'workspace/studies' / STUDY
 STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
 
-# Runtime knobs — edit freely. STEPS = number of composite steps;
-# INTERVAL = global dt filling ${interval} placeholders (a per-process
-# interval pinned in the edit cell above takes precedence).
-STEPS_mapk_brs = 120
-INTERVAL_mapk_brs = 0.1
-STEPS_seed_7 = 120
-INTERVAL_seed_7 = 0.1
-
-if RERUN:
-    with quiet():  # the sim prints per-step progress; keep it out of the notebook
-        # Generic process-bigraph protocol (no workspace runner detected):
-        from viva_superpowers.composite_spec import build_composite_from_spec
-        comp = build_composite_from_spec(spec_pbg_reactive_system_composites_mapk_brs, {'interval': INTERVAL_mapk_brs}, core=core)
-        comp.run(STEPS_mapk_brs)  # writes the composite's declared emitter
-        comp = build_composite_from_spec(spec_pbg_reactive_system_composites_mapk_brs, {'interval': INTERVAL_seed_7}, core=core)
-        comp.run(STEPS_seed_7)  # writes the composite's declared emitter
-    print(f'ran 2 simulation(s) -> {RUNS_DB}')
-else:
-    print("RERUN=False — rendering committed", RUNS_DB)
+print("No recorded runs for this study; nothing to reproduce.")
 
 # ### Visualizations
 #
