@@ -325,6 +325,16 @@ visualizations:
     n_keyframes: 12
     n_intermediate: 4
   caption: The MAPK cell-cartoon animation, regenerated from the composite (seed 42).
+# Embedded interactive HTML (rendered from the local: viz above) so the static
+# published bundle iframes them on the study page — the snapshot publisher can't
+# render local: viz itself. Files are committed under this study's viz/.
+embed_visualizations:
+- name: species-timeseries
+  url: /workspace/studies/mapk-brs-basics/viz/species-timeseries.html
+  title: Species counts over time (interactive)
+- name: animation-interactive
+  url: /workspace/studies/mapk-brs-basics/viz/animation-interactive.html
+  title: MAPK animation (interactive)
 conclusion_logic:
   if_primary_tests_pass:
     implementation_status: The MAPK BRS reproduces the prior live demo qualitatively
