@@ -12,15 +12,8 @@ evaluation_status: evaluated
 gate_status: passed
 expert_review_status: not_requested
 confidence: Accepted
-claim: "Run as a Bigraphical Reactive System under Gillespie SSA, the MAPK cycle\n\
-  reproduces the prior live demo: MEK\xB7substrate complexes form in the\ncytoplasm\
-  \ and phospho-ERK accumulates in the nucleus (0 \u2192 144 over 120 ticks).\n"
-objective: "Reproduce the prior MAPK BRS live demo inside the workbench: run the MAPK\n\
-  signalling cycle as a Milner-style Bigraphical Reactive System under\nGillespie\
-  \ SSA and surface its basic systems \u2014 the initial nested-cell\nbigraph, the\
-  \ seven redex\u2192reactum rewrite rules, the per-compartment\nsubstrate population\
-  \ time series, and the structural snapshots/animation of\nphospho-ERK translocating\
-  \ into the nucleus.\n"
+claim: "Run as a Bigraphical Reactive System under Gillespie SSA, the MAPK cycle\nreproduces the prior live demo: MEK·substrate complexes form in the\ncytoplasm and phospho-ERK accumulates in the nucleus (0 → 144 over 120 ticks).\n"
+objective: "Reproduce the prior MAPK BRS live demo inside the workbench: run the MAPK\nsignalling cycle as a Milner-style Bigraphical Reactive System under\nGillespie SSA and surface its basic systems — the initial nested-cell\nbigraph, the seven redex→reactum rewrite rules, the per-compartment\nsubstrate population time series, and the structural snapshots/animation of\nphospho-ERK translocating into the nucleus.\n"
 report:
   confidence: medium
   evidence_quality: literature-matched
@@ -31,19 +24,7 @@ report:
     rather than being conserved.
 
     '
-question: "Run as a Bigraphical Reactive System under Gillespie SSA, does the MAPK\n\
-  signalling cycle reproduce the qualitative behaviour of the prior live demo\n\u2014\
-  \ MEK\xB7ERK complexes forming in the cytoplasm and phospho-ERK accumulating\nin\
-  \ the nucleus by the end of the run?\n"
-baseline:
-- name: mapk_brs
-  composite: pbg_reactive_system.composites.mapk_brs
-  params: {}
-variants:
-- name: seed-7
-  base_composite: mapk_brs
-  parameter_overrides:
-    seed: 7
+question: "Run as a Bigraphical Reactive System under Gillespie SSA, does the MAPK\nsignalling cycle reproduce the qualitative behaviour of the prior live demo\n— MEK·ERK complexes forming in the cytoplasm and phospho-ERK accumulating\nin the nucleus by the end of the run?\n"
 runs:
 - name: pbg_reactive_system.composites.mapk_brs__1790458274__ed6c9f
   status: completed
@@ -98,20 +79,17 @@ readouts:
   status: available
 - name: nucleus-pERK
   store_path: nucleus_pERK
-  description: Phospho-ERK that has translocated through the nuclear pore into the
-    nucleus.
+  description: Phospho-ERK that has translocated through the nuclear pore into the nucleus.
   units: molecules
   status: available
 - name: complexes
   store_path: complexes
-  description: "MEK\xB7substrate complexes (the catalytic intermediate, drawn as a\
-    \ link-graph bond)."
+  description: "MEK·substrate complexes (the catalytic intermediate, drawn as a link-graph bond)."
   units: molecules
   status: available
 - name: total-substrate
   store_path: total_substrate
-  description: Total ERK + pERK copies in the cell (the population the time series
-    tracks).
+  description: Total ERK + pERK copies in the cell (the population the time series tracks).
   units: molecules
   status: available
 behavior_tests:
@@ -128,14 +106,12 @@ behavior_tests:
     low: 1
     provenance:
       kind: theory
-      note: The translocate_perk_in rule moves pERK into the nucleus, so a run must
-        end with nuclear pERK > 0.
+      note: The translocate_perk_in rule moves pERK into the nucleus, so a run must end with nuclear pERK > 0.
   status: pending
 - name: nucleus-starts-empty
   classification: diagnostic
   gate_class: acceptance_criterion
-  question: Is the nucleus empty of pERK at t=0 (so accumulation is dynamics, not
-    initial condition)?
+  question: Is the nucleus empty of pERK at t=0 (so accumulation is dynamics, not initial condition)?
   measure:
     kind: listener_initial
     path: nucleus_pERK
@@ -150,7 +126,7 @@ behavior_tests:
 - name: complexes-form
   classification: supporting
   gate_class: acceptance_criterion
-  question: "Do MEK\xB7substrate complexes form during the run (phosphorylation intermediate)?"
+  question: "Do MEK·substrate complexes form during the run (phosphorylation intermediate)?"
   measure:
     kind: listener_max
     path: complexes
@@ -160,14 +136,12 @@ behavior_tests:
     low: 1
     provenance:
       kind: theory
-      note: The phosphorylate rule binds MEK to a substrate
-      creating a link-graph bond.: null
+      note: The phosphorylate rule binds MEK to a substrate creating a link-graph bond.
   status: pending
 - name: population-grows
   classification: supporting
   gate_class: acceptance_criterion
-  question: Does the substrate population evolve over the run (a non-trivial time
-    series)?
+  question: Does the substrate population evolve over the run (a non-trivial time series)?
   measure:
     kind: listener_final
     path: total_substrate
@@ -177,49 +151,28 @@ behavior_tests:
     low: 5
     provenance:
       kind: theory
-      note: Starts at 4 copies; the demo's population time series grows well beyond
-        that.
+      note: Starts at 4 copies; the demo's population time series grows well beyond that.
   status: pending
-biological_summary: "The MAP-kinase cascade is the canonical signal-transduction relay\
-  \ in\nmammalian cells. This study models its last catalytic step as a Milner-style\n\
-  bigraph: a place graph nests molecules inside compartments\n(Cell \u2283 Cytoplasm\
-  \ \u2283 {Nucleus, ERLumen}) and a link graph carries the\nMEK\xB7substrate catalytic\
-  \ bond.\n\nSeven redex\u2192reactum rewrite rules drive the cycle. In the cytoplasm\
-  \ MEK\nbinds a free ERK (phosphorylate), forming a MEK\xB7pERK complex that then\n\
-  dissociates to release phospho-ERK; nuclear phosphatases dephosphorylate.\nPhospho-ERK\
-  \ translocates through the nuclear pore complex into the nucleus,\nwhile ERK and\
-  \ pERK also shuttle between the cytoplasm and the ER lumen.\nRule propensities follow\
-  \ Gillespie SSA (propensity = rate \xD7 |matches|), so\nthe trajectory is stochastic\
-  \ but seeded for reproducibility.\n\nThe basic systems the demo surfaces \u2014\
-  \ the initial bigraph, the rule catalog\n(each rule's redex/reactum pattern beside\
-  \ a real before/after state), the\nper-compartment population time series, and the\
-  \ structural snapshots and\nsmooth animation \u2014 are all read off a single seeded\
-  \ run of this composite.\n"
+biological_summary: "The MAP-kinase cascade is the canonical signal-transduction relay in\nmammalian cells. This study models its last catalytic step as a Milner-style\nbigraph: a place graph nests molecules inside compartments\n(Cell ⊃ Cytoplasm ⊃ {Nucleus, ERLumen}) and a link graph carries the\nMEK·substrate catalytic bond.\n\nSeven redex→reactum rewrite rules drive the cycle. In the cytoplasm MEK\nbinds a free ERK (phosphorylate), forming a MEK·pERK complex that then\ndissociates to release phospho-ERK; nuclear phosphatases dephosphorylate.\nPhospho-ERK translocates through the nuclear pore complex into the nucleus,\nwhile ERK and pERK also shuttle between the cytoplasm and the ER lumen.\nRule propensities follow Gillespie SSA (propensity = rate × |matches|), so\nthe trajectory is stochastic but seeded for reproducibility.\n\nThe basic systems the demo surfaces — the initial bigraph, the rule catalog\n(each rule's redex/reactum pattern beside a real before/after state), the\nper-compartment population time series, and the structural snapshots and\nsmooth animation — are all read off a single seeded run of this composite.\n"
 literature_anchors:
-- expectation: "MEK is active-site limited \u2014 one catalytic cleft, so it complexes\
-    \ with at most one substrate at a time."
-  model_observable: "complexes (MEK\xB7substrate bond count) never exceeds the MEK\
-    \ copy number."
+- expectation: "MEK is active-site limited — one catalytic cleft, so it complexes with at most one substrate at a time."
+  model_observable: "complexes (MEK·substrate bond count) never exceeds the MEK copy number."
   source: Ohren 2004 (PDB 3EQH)
-  status_in_workspace: "Verified \u2014 the phosphorylate redex requires a free MEK\
-    \ port."
+  status_in_workspace: "Verified — the phosphorylate redex requires a free MEK port."
 - expectation: Phospho-ERK translocates into the nucleus via the nuclear pore complex.
   model_observable: nucleus_pERK rises from zero over the run.
   source: Lin & Hoelz 2019
-  status_in_workspace: "Verified \u2014 observed nucleus_pERK > 0 at end of run."
+  status_in_workspace: "Verified — observed nucleus_pERK > 0 at end of run."
 limitations:
-- Illustrative rate constants; this is a BRS-engine demonstration, not a calibrated
-  MAPK model.
-- "Substrate copies grow over the run (the rewrite rules are not mass-conserving)\
-  \ \u2014 realistic conservation is out of scope."
+- Illustrative rate constants; this is a BRS-engine demonstration, not a calibrated MAPK model.
+- "Substrate copies grow over the run (the rewrite rules are not mass-conserving) — realistic conservation is out of scope."
 - Single seeded trajectory (seed 42); no multi-seed robustness sweep in this study.
 findings:
 - id: F-01
   tier: observation
   kind: computational
   status: confirms
-  statement: "Phospho-ERK accumulates in the nucleus over the run \u2014 nucleus pERK\
-    \ rises\nfrom 0 to 144 across 120 ticks (seed 42).\n"
+  statement: "Phospho-ERK accumulates in the nucleus over the run — nucleus pERK rises\nfrom 0 to 144 across 120 ticks (seed 42).\n"
   evidence:
     from_test: nucleus-accumulates-perk
     observed: 144
@@ -234,8 +187,7 @@ findings:
   tier: observation
   kind: computational
   status: confirms
-  statement: "MEK\xB7substrate complexes form during the run \u2014 the catalytic\
-    \ intermediate\ncount rises from 0 to 59, and the nucleus starts empty (0 at t=0).\n"
+  statement: "MEK·substrate complexes form during the run — the catalytic intermediate\ncount rises from 0 to 59, and the nucleus starts empty (0 at t=0).\n"
   evidence:
     from_test: complexes-form
     observed: 59
@@ -251,10 +203,7 @@ findings:
   mechanism_origin: emergent
   kind: biological
   status: confirms
-  statement: "The MAPK cycle's spatial signalling \u2014 cytoplasmic complex formation\
-    \ and\nnuclear translocation of phospho-ERK \u2014 emerges from seven local\n\
-    redex\u2192reactum rewrite rules fired under Gillespie SSA, reproducing the\n\
-    prior live demo qualitatively.\n"
+  statement: "The MAPK cycle's spatial signalling — cytoplasmic complex formation and\nnuclear translocation of phospho-ERK — emerges from seven local\nredex→reactum rewrite rules fired under Gillespie SSA, reproducing the\nprior live demo qualitatively.\n"
   evidence:
     from_test: nucleus-accumulates-perk
   provenance:
@@ -264,52 +213,43 @@ findings:
     - 42
     analysis_script: workspace/studies/mapk-brs-basics/tests/test_mapk_brs_basics.py
   next_action_type: escalate_model
-  next_action: 'Add a mass-conserving rule variant and a multi-seed robustness sweep
-    to
+  next_action: 'Add a mass-conserving rule variant and a multi-seed robustness sweep to
 
     move from qualitative demonstration toward a calibrated model.
 
     '
 conclusion_verdicts:
   regression_compatibility:
-    basis: The composite builds and the 120-tick baseline runs cleanly under Gillespie
-      SSA; all 5 behavior tests pass.
+    basis: The composite builds and the 120-tick baseline runs cleanly under Gillespie SSA; all 5 behavior tests pass.
     result: PASS
   biological_validation:
-    basis: Qualitatively correct (nuclear pERK accumulation, complex formation) but
-      uncalibrated and non-conserving, so not a quantitative match.
+    basis: Qualitatively correct (nuclear pERK accumulation, complex formation) but uncalibrated and non-conserving, so not a quantitative match.
     result: MIXED
   explanatory_gain:
-    basis: Demonstrates that a Milner-style BRS reproduces the MAPK cycle's spatial
-      signalling as emergent rewrite dynamics.
+    basis: Demonstrates that a Milner-style BRS reproduces the MAPK cycle's spatial signalling as emergent rewrite dynamics.
     result: POSITIVE
 visualizations:
 - name: initial-bigraph
   address: image:charts/mapk_brs_viz.png
   chart: charts/mapk_brs_viz.png
-  caption: "Initial bigraph \u2014 place graph (Cell \u2283 Cytoplasm \u2283 {Nucleus,\
-    \ ERLumen}) plus the link graph carrying MEK\xB7substrate bonds."
+  caption: "Initial bigraph — place graph (Cell ⊃ Cytoplasm ⊃ {Nucleus, ERLumen}) plus the link graph carrying MEK·substrate bonds."
   render: python render_panels.py
 - name: population-timeseries
   address: image:charts/mapk_brs_timeseries.png
   chart: charts/mapk_brs_timeseries.png
-  caption: Per-compartment substrate populations under Gillespie SSA, with rule-firing
-    ticks marked above the curves.
+  caption: Per-compartment substrate populations under Gillespie SSA, with rule-firing ticks marked above the curves.
 - name: structural-snapshots
   address: image:charts/mapk_brs_snapshots.png
   chart: charts/mapk_brs_snapshots.png
-  caption: "Cell cartoons at evenly spaced points in the run \u2014 MEK in the cytoplasm,\
-    \ ERK/pERK across compartments, MEK\xB7pERK bonds as paired green lines."
+  caption: "Cell cartoons at evenly spaced points in the run — MEK in the cytoplasm, ERK/pERK across compartments, MEK·pERK bonds as paired green lines."
 - name: rule-catalog
   address: image:charts/mapk_brs_trace.png
   chart: charts/mapk_brs_trace.png
-  caption: "The seven rules \u2014 each row is the redex\u2192reactum pattern beside\
-    \ a real before/after state drawn from the run."
+  caption: "The seven rules — each row is the redex→reactum pattern beside a real before/after state drawn from the run."
 - name: animation
   address: image:charts/mapk_brs_animation.gif
   chart: charts/mapk_brs_animation.gif
-  caption: Cubic ease-in-out interpolation between snapshots; the title carries the
-    rule firing during each transition.
+  caption: Cubic ease-in-out interpolation between snapshots; the title carries the rule firing during each transition.
 - name: species-timeseries
   address: local:MapkSpeciesTimeseries
   config:
@@ -337,19 +277,14 @@ embed_visualizations:
   title: MAPK animation (interactive)
 conclusion_logic:
   if_primary_tests_pass:
-    implementation_status: The MAPK BRS reproduces the prior live demo qualitatively
-      inside the workbench.
-    biological_validation: "Validates the spatial signalling mechanism (complex formation\
-      \ + nuclear\ntranslocation) and the BRS engine \u2014 NOT quantitative MAPK\
-      \ kinetics, which\nremain uncalibrated.\n"
+    implementation_status: The MAPK BRS reproduces the prior live demo qualitatively inside the workbench.
+    biological_validation: "Validates the spatial signalling mechanism (complex formation + nuclear\ntranslocation) and the BRS engine — NOT quantitative MAPK kinetics, which\nremain uncalibrated.\n"
     pipeline_unblocks: []
   if_primary_tests_fail:
     diagnose:
-    - Check the translocate_perk_in rule and the nuclear-pore redex if nucleus pERK
-      stays 0.
-    - "Check the phosphorylate rule if no MEK\xB7substrate complexes form."
-    block_downstream: A calibrated MAPK model would be blocked until the qualitative
-      cycle is reproduced.
+    - Check the translocate_perk_in rule and the nuclear-pore redex if nucleus pERK stays 0.
+    - "Check the phosphorylate rule if no MEK·substrate complexes form."
+    block_downstream: A calibrated MAPK model would be blocked until the qualitative cycle is reproduced.
 simulation_set:
 - name: mapk_brs-baseline
   kind: single
@@ -402,14 +337,16 @@ last_test_run:
   failed: 0
   skipped: 0
   duration_s: 1.0877833366394043
-conclusion: "## Claims\n- The MAPK signalling cycle runs as a Bigraphical Reactive\
-  \ System under Gillespie SSA and reproduces the prior live demo qualitatively: MEK\xB7\
-  substrate complexes form in the cytoplasm and phospho-ERK accumulates in the nucleus.\n\
-  \n## Evidence\n- Seeded 120-tick run (seed 42): nucleus pERK 0 \u2192 144, MEK\xB7\
-  substrate complexes 0 \u2192 59, substrate population 4 \u2192 428.\n- All 5 behavior\
-  \ tests pass (nucleus-accumulates-perk, nucleus-starts-empty, complexes-form, population-grows,\
-  \ run-length).\n\n## Limitations\n- Illustrative rate constants; a BRS-engine demonstration,\
-  \ not a calibrated MAPK model.\n- The rewrite rules are not mass-conserving, so\
-  \ substrate copies grow over the run.\n- Single seeded trajectory; no multi-seed\
-  \ robustness sweep.\n\n## Next steps\n- Add a mass-conserving rule variant and a\
-  \ multi-seed robustness sweep to move from demonstration toward a calibrated model.\n"
+conclusion: "## Claims\n- The MAPK signalling cycle runs as a Bigraphical Reactive System under Gillespie SSA and reproduces the prior live demo qualitatively: MEK·substrate complexes form in the cytoplasm and phospho-ERK accumulates in the nucleus.\n\n## Evidence\n- Seeded 120-tick run (seed 42): nucleus pERK 0 → 144, MEK·substrate complexes 0 → 59, substrate population 4 → 428.\n- All 5 behavior tests pass (nucleus-accumulates-perk, nucleus-starts-empty, complexes-form, population-grows, run-length).\n\n## Limitations\n- Illustrative rate constants; a BRS-engine demonstration, not a calibrated MAPK model.\n- The rewrite rules are not mass-conserving, so substrate copies grow over the run.\n- Single seeded trajectory; no multi-seed robustness sweep.\n\n## Next steps\n- Add a mass-conserving rule variant and a multi-seed robustness sweep to move from demonstration toward a calibrated model.\n"
+conditions:
+  baseline:
+    name: mapk_brs
+    composite: pbg_reactive_system.composites.mapk_brs
+    params: {}
+  variants:
+  - name: seed-7
+    base_composite: mapk_brs
+    params:
+      seed: 7
+    composite: pbg_reactive_system.composites.mapk_brs
+  model_settings: []
