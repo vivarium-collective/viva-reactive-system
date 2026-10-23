@@ -13,11 +13,6 @@
 **[Open the read-only workbench](https://vivarium-collective.github.io/viva-reactive-system/workbench/)** to browse every composite, study, and result in your browser — or run it locally (below).
 <!-- END:dashboard -->
 
-<!-- BEGIN dashboard -->
-> ## 📊 [**Live dashboard →**](https://vivarium-collective.github.io/viva-reactive-system/dashboard/)
-> Browse every investigation & study interactively, or read the [published investigation reports](https://vivarium-collective.github.io/viva-reactive-system/). Auto-published from `main` on every merge.
-<!-- END dashboard -->
-
 A **process-bigraph research workspace** for **Milner-style Bigraphical
 Reactive Systems (BRS)**, driven through the interactive
 [**vivarium-workbench**](https://github.com/vivarium-collective/vivarium-workbench)
