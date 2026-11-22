@@ -93,8 +93,8 @@ vivarium-workbench serve --workspace . --port 8765
 ```
 
 With the [viva-superpowers](https://github.com/vivarium-collective/viva-superpowers)
-plugin installed you can instead drive it with the skills — `/viva-workbench
-start`, `/viva-study open mapk-brs-basics`, `/viva-report`.
+plugin installed you can instead drive it with the skills — `/viva:workbench
+start`, `/viva:study open mapk-brs-basics`, `/viva:report`.
 
 **Regenerate the demo figures** (deterministic, seed 42):
 
