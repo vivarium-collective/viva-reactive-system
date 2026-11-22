@@ -1,7 +1,6 @@
 {
   "mode": "snapshot",
-  "smsApiBase": "",
   "repo": "https://github.com/vivarium-collective/viva-reactive-system",
-  "commit": "63de5bc282a027041baa4ca5627db1c2472308fd",
+  "commit": "c4bf6a4af99f33c889d7015ede1011aa4390a902",
   "generated_from_ref": "main"
 }
